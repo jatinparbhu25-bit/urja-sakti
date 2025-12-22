@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Wellvora</title>
 
+    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+
     <!-- Favicon -->
     <!-- PLACE IMAGE: Site favicon -->
     <link rel="icon" type="image/jpg" href="img/product1.jpg" />
@@ -15,7 +18,7 @@
         !function (f, b, e, v, n, t, s) {
             if (f.fbq) return; n = f.fbq = function () {
                 n.callMethod ?
-                n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
             };
             if (!f._fbq) f._fbq = n; n.push = n; n.loaded = !0; n.version = '2.0';
             n.queue = []; t = b.createElement(e); t.async = !0;
@@ -1292,16 +1295,14 @@
 
             <!-- ORDER FORM -->
             <section class="section" id="odr">
-                <form
-                    action="https://docs.google.com/forms/d/e/1FAIpQLSeFFDaueIG_-lPX4U4AxbTEEyu--sVdasZ8KjEw9psr1oTQWg/formResponse"
-                    method="POST" class="form-wrap" id="enquiryform">
+                <form id="submit-to-google-sheet">
                     <h2>Stand UP நிபுணர்களிடமிருந்து மேலும் அறிய படிவத்தை நிரப்பவும்</h2>
 
                     <label>Full Name</label>
-                    <input name="entry.2005620554" type="text" placeholder="உங்கள் முழுப் பெயரை உள்ளிடவும்" required />
+                    <input name="fullname" type="text" placeholder="உங்கள் முழுப் பெயரை உள்ளிடவும்" required />
 
                     <label>Phone Number</label>
-                    <input name="entry.1166974658" type="tel" maxlength="10" inputmode="numeric"
+                    <input name="phonenumber" type="tel" maxlength="10" inputmode="numeric"
                         placeholder="உங்கள் தொலைபேசி எண்ணை உள்ளிடவும்" required />
 
                     <button type="submit" class="btn btn-yellow">Order now</button>
@@ -1417,18 +1418,51 @@
     </div>
 
     <script>
-        // NOTE: Your current HTML does NOT include #mobile/#mobileerror/#submissionTime
-        // The previous JS was referencing them and could cause errors.
-        // Since you're submitting to Google Forms directly, you can keep JS minimal.
+        const scriptURL =
+            "https://script.google.com/macros/s/AKfycbyI3XRwLkVsgs_AGA1_Wb_uNZwJwgJDqskwN3tfBQxAPnWmngl0oJl-bhhoWTvFXg/exec";
 
-        // Optional: allow only digits for the phone input in the Google form
-        const phone = document.querySelector('input[name="entry.1166974658"]');
-        if (phone) {
-            phone.addEventListener('input', (e) => {
-                e.target.value = (e.target.value || '').replace(/[^\d]/g, '').slice(0, 10);
-            });
-        }
+        const form = document.getElementById("submit-to-google-sheet");
+
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            // ✅ Get input values
+            const fullName = form.querySelector('input[name="fullname"]').value;
+            const phoneNumber = form.querySelector('input[name="phonenumber"]').value;
+
+            // Optional validation
+            if (phoneNumber.length !== 10) {
+                swal("Error", "Please enter a valid 10-digit phone number", "error");
+                return;
+            }
+
+            // ✅ Send data
+            const formData = new FormData();
+            formData.append("fullname", fullName);
+            formData.append("phonenumber", phoneNumber);
+
+            fetch(scriptURL, { method: "POST", body: formData })
+                .then(() => {
+                    swal({
+                        title: "Thank You!",
+                        text: "உங்கள் ஆர்டர்\nஏற்றுக்கொள்ளப்பட்டது.\n\n(முகவரியை உறுதிப்படுத்த\nஎங்கள் ஆபரேட்டர்\nஉங்களைத்\nதொடர்புகொள்வார்!!)",
+                        icon: "success",
+                        button: "done"
+                    });
+                    form.reset();
+                })
+                .catch(() => {
+                    swal({
+                        title: "Error",
+                        text: "Something went wrong. Please try again!",
+                        icon: "error",
+                        button: "OK"
+                    });
+                });
+
+        });
     </script>
+
 </body>
 
 </html>
