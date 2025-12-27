@@ -1419,51 +1419,60 @@
         </div>
     </div>
 
-    <script>
-        const scriptURL =
-            "https://script.google.com/macros/s/AKfycbyI3XRwLkVsgs_AGA1_Wb_uNZwJwgJDqskwN3tfBQxAPnWmngl0oJl-bhhoWTvFXg/exec";
+<script>
+    const scriptURL =
+        "https://script.google.com/macros/s/AKfycbyI3XRwLkVsgs_AGA1_Wb_uNZwJwgJDqskwN3tfBQxAPnWmngl0oJl-bhhoWTvFXg/exec";
 
-        const form = document.getElementById("submit-to-google-sheet");
+    const form = document.getElementById("submit-to-google-sheet");
+    const submitBtn = form.querySelector('button[type="submit"]');
 
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
+    form.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-            // ✅ Get input values
-            const fullName = form.querySelector('input[name="fullname"]').value;
-            const phoneNumber = form.querySelector('input[name="phonenumber"]').value;
+        if (submitBtn.disabled) return;
 
-            // Optional validation
-            if (phoneNumber.length !== 10) {
-                swal("Error", "Please enter a valid 10-digit phone number", "error");
-                return;
-            }
+        submitBtn.disabled = true;
+        submitBtn.innerText = "Submitting...";
 
-            // ✅ Send data
-            const formData = new FormData();
-            formData.append("fullname", fullName);
-            formData.append("phonenumber", phoneNumber);
+        const fullName = form.querySelector('input[name="fullname"]').value;
+        const phoneNumber = form.querySelector('input[name="phonenumber"]').value;
 
-            fetch(scriptURL, { method: "POST", body: formData })
-                .then(() => {
+        if (phoneNumber.length !== 10) {
+            swal("Error", "Please enter a valid 10-digit phone number", "error");
+            submitBtn.disabled = false;
+            submitBtn.innerText = "Submit";
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append("fullname", fullName);
+        formData.append("phonenumber", phoneNumber);
+
+        fetch(scriptURL, { method: "POST", body: formData })
+            .then(res => res.text())
+            .then(result => {
+                if (result === "Duplicate entry") {
+                    swal("Warning", "This phone number is already registered!", "warning");
+                    submitBtn.disabled = false;
+                    submitBtn.innerText = "Submit";
+                } else {
                     swal({
                         title: "Thank You!",
                         text: "உங்கள் ஆர்டர்\nஏற்றுக்கொள்ளப்பட்டது.\n\n(முகவரியை உறுதிப்படுத்த\nஎங்கள் ஆபரேட்டர்\nஉங்களைத்\nதொடர்புகொள்வார்!!)",
                         icon: "success",
-                        button: "done"
+                        button: "Done"
                     });
                     form.reset();
-                })
-                .catch(() => {
-                    swal({
-                        title: "Error",
-                        text: "Something went wrong. Please try again!",
-                        icon: "error",
-                        button: "OK"
-                    });
-                });
-
-        });
-    </script>
+                    submitBtn.innerText = "Submitted";
+                }
+            })
+            .catch(() => {
+                swal("Error", "Something went wrong. Please try again!", "error");
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Submit";
+            });
+    });
+</script>
 
 </body>
 
