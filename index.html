@@ -1456,12 +1456,33 @@
                     submitBtn.disabled = false;
                     submitBtn.innerText = "Submit";
                 } else {
-                    swal({
-                        title: "Thank You!",
-                        text: "உங்கள் ஆர்டர்\nஏற்றுக்கொள்ளப்பட்டது.\n\n(முகவரியை உறுதிப்படுத்த\nஎங்கள் ஆபரேட்டர்\nஉங்களைத்\nதொடர்புகொள்வார்!!)",
-                        icon: "success",
-                        button: "Done"
-                    });
+swal({
+  title: "Thank You!",
+  content: {
+    element: "div",
+    attributes: {
+      innerHTML: `
+        <div style="font-size:14px; line-height:1.6; text-align:center;">
+          உங்கள் ஆர்டர்<br>
+          ஏற்றுக்கொள்ளப்பட்டது.<br><br>
+
+          முகவரியை உறுதிப்படுத்த<br>
+          எங்கள் ஆபரேட்டர்<br>
+          உங்களைத் தொடர்புகொள்வார்!!<br><br>
+
+          📞 <strong>Contact:</strong><br>
+          <a href="tel:+918810666825"
+             style="font-size:16px; color:#1a73e8; text-decoration:none;">
+            +91 88106 66825
+          </a>
+        </div>
+      `
+    }
+  },
+  icon: "success",
+  button: "Done"
+});
+
                     form.reset();
                     submitBtn.innerText = "Submitted";
                 }
